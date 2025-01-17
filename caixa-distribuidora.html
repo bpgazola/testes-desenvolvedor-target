@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faturamento Diário</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Faturamento Diário</h1>
+
+    <label for="faturamentoDiario">Faturamento Diário (separado por vírgulas):</label>
+    <input type="text" id="faturamentoDiario">
+
+    <button id="calcular">Calcular</button>
+
+    <div id="resultados">
+        <h2>Resultados:</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Estado</th>
+                    <th>Faturamento Mensal</th>
+                    <th>% do Faturamento Total</th>
+                    <th>Faturamento Diário</th>
+                    <th>Acima da Média?</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaResultados">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        const xml = `
+            <faturamento>
+                <estado nome="SP" valor="67836.43"/>
+                <estado nome="RJ" valor="36678.66"/>
+                <estado nome="MG" valor="29229.88"/>
+                <estado nome="ES" valor="27165.48"/>
+                <estado nome="Outros" valor="19849.53"/>
+            </faturamento>
+        `;
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xml, "text/xml");
+        const estados = doc.querySelectorAll("estado");
+
+        const calcularButton = document.getElementById("calcular");
+        const faturamentoDiarioInput = document.getElementById("faturamentoDiario");
+        const tabelaResultados = document.getElementById("tabelaResultados");
+
+        calcularButton.addEventListener("click", () => {
+            const valoresFaturamento = faturamentoDiarioInput.value
+                .split(",")
+                .map(valor => parseFloat(valor.trim()));
+
+            // Calcula o menor valor de faturamento
+            const menorFaturamento = Math.min(...valoresFaturamento);
+            
+            // Calcula o maior valor de faturamento
+            const maiorFaturamento = Math.max(...valoresFaturamento);
+            
+            // Calcula a média mensal
+            const mediaMensal = valoresFaturamento.reduce((soma, valor) => soma + valor, 0) / valoresFaturamento.length;
+
+            // Calcula o faturamento total
+            let faturamentoTotal = 0;
+            estados.forEach(estado => {
+                faturamentoTotal += parseFloat(estado.getAttribute('valor'));
+            });
+
+            // Limpa a tabela antes de preencher novamente
+            tabelaResultados.innerHTML = '';
+
+            // Preenche a tabela com os resultados
+            estados.forEach((estado, index) => {
+                const nomeEstado = estado.getAttribute('nome');
+                const faturamentoMensal = parseFloat(estado.getAttribute('valor'));
+                const porcentagemFaturamento = (faturamentoMensal / faturamentoTotal) * 100;
+                const faturamentoDiarioValor = valoresFaturamento[index] || 0; // Se não houver valor de faturamento diário, usa 0
+                const acimaDaMedia = faturamentoDiarioValor > mediaMensal ? 'Sim' : 'Não';
+
+                const linha = tabelaResultados.insertRow();
+                linha.insertCell().textContent = nomeEstado;
+                linha.insertCell().textContent = faturamentoMensal.toFixed(2);
+                linha.insertCell().textContent = porcentagemFaturamento.toFixed(2) + '%';
+                linha.insertCell().textContent = faturamentoDiarioValor.toFixed(2);
+                linha.insertCell().textContent = acimaDaMedia;
+            });
+        });
+    </script>
+</body>
+</html>

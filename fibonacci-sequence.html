@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sequência de Fibonacci</title>
+</head>
+<body>
+  <h1>Sequência de Fibonacci</h1>
+  <input type="number" id="numero" placeholder="Digite um número">
+  <button id="verificar">Verificar</button>
+  <p id="resultado"></p>
+
+  <script>
+    const inputNumero = document.getElementById('numero');
+const buttonVerificar = document.getElementById('verificar');
+const resultado = document.getElementById('resultado');
+
+buttonVerificar.addEventListener('click', () => {
+  const numero = parseInt(inputNumero.value);
+  const sequencia = calcularSequenciaFibonacci(numero);
+  const pertence = sequencia.includes(numero);
+
+  if (pertence) {
+    resultado.textContent = `O número ${numero} pertence à sequência de Fibonacci!`;
+  } else {
+    resultado.textContent = `O número ${numero} não pertence à sequência de Fibonacci.`;
+  }
+});
+
+function calcularSequenciaFibonacci(numero) {
+  const sequencia = [0, 1];
+  let a = 0;
+  let b = 1;
+
+  while (b <= numero) {
+    const proximo = a + b;
+    sequencia.push(proximo);
+    a = b;
+    b = proximo;
+  }
+
+  return sequencia;
+}
+  </script>
+</body>
+</html>
